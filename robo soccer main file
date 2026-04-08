@@ -1,0 +1,88 @@
+void moveBackward() {
+  // Left Motors - BACKWARD
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  
+  // Right Motors - BACKWARD
+  analogWrite(ENB, motorSpeed);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void turnLeft() {
+  // Left Motors - BACKWARD (to spin left)
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  
+  // Right Motors - FORWARD (to spin left)
+  analogWrite(ENB, motorSpeed);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnRight() {
+  // Left Motors - FORWARD (to spin right)
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  
+  // Right Motors - BACKWARD (to spin right)
+  analogWrite(ENB, motorSpeed);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void stopMotors() {
+  // Left Motors - STOP
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+  
+  // Right Motors - STOP
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENB, 0);
+}
+
+// ===== OPTIONAL: SPEED CONTROL FUNCTION =====
+// Call this function to change speed on the fly
+void setSpeed(int newSpeed) {
+  newSpeed = constrain(newSpeed, 0, 255);
+  motorSpeed = newSpeed;
+  Serial.print("Speed set to: ");
+  Serial.println(motorSpeed);
+}
+
+// ===== OPTIONAL: MOTOR TEST FUNCTION =====
+// Call this in setup() to test all motors
+void motorTest() {
+  Serial.println("Motor Test Started...");
+  delay(1000);
+  
+  Serial.println("Forward 2 seconds");
+  moveForward();
+  delay(2000);
+  stopMotors();
+  delay(500);
+  
+  Serial.println("Backward 2 seconds");
+  moveBackward();
+  delay(2000);
+  stopMotors();
+  delay(500);
+  
+  Serial.println("Left Turn 2 seconds");
+  turnLeft();
+  delay(2000);
+  stopMotors();
+  delay(500);
+  
+  Serial.println("Right Turn 2 seconds");
+  turnRight();
+  delay(2000);
+  stopMotors();
+  
+  Serial.println("Motor Test Complete!");
+}
