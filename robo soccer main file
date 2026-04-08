@@ -1,3 +1,139 @@
+/*
+ * ⚽ ROBO SOCCER - L298N Motor Driver with HC-05 Bluetooth ⚽
+ * 
+ * PIN CONNECTIONS:
+ * L298N ENA  → Arduino Pin 4  (Left Motors Speed)
+ * L298N IN1  → Arduino Pin 5  (Left Motors Direction 1)
+ * L298N IN2  → Arduino Pin 6  (Left Motors Direction 2)
+ * L298N ENB  → Arduino Pin 7  (Right Motors Speed)
+ * L298N IN3  → Arduino Pin 8  (Right Motors Direction 1)
+ * L298N IN4  → Arduino Pin 9  (Right Motors Direction 2)
+ * 
+ * HC-05 Bluetooth:
+ * HC-05 TX  → Arduino Pin 10 (SoftwareSerial RX)
+ * HC-05 RX  → Arduino Pin 11 (SoftwareSerial TX) via voltage divider
+ * HC-05 VCC → Arduino 5V
+ * HC-05 GND → Arduino GND
+ */
+
+#include <SoftwareSerial.h>
+
+// ===== L298N MOTOR PINS =====
+// Left Motors (Channel A)
+const int ENA = 4;   // Left motors speed (PWM)
+const int IN1 = 5;   // Left motors direction 1
+const int IN2 = 6;   // Left motors direction 2
+
+// Right Motors (Channel B)
+const int ENB = 7;   // Right motors speed (PWM)
+const int IN3 = 8;   // Right motors direction 1
+const int IN4 = 9;   // Right motors direction 2
+
+// ===== HC-05 BLUETOOTH (SoftwareSerial) =====
+// Using pins 10 and 11 to avoid conflict with USB upload
+SoftwareSerial bluetooth(10, 11);  // RX = Pin 10, TX = Pin 11
+
+// ===== VARIABLES =====
+char command;
+int motorSpeed = 200;  // Speed 0-255 (200 is good for 3-cell battery)
+
+void setup() {
+  // ===== SETUP MOTOR PINS =====
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  
+  // Initialize all motors to STOP
+  stopMotors();
+  
+  // ===== SETUP BLUETOOTH =====
+  Serial.begin(9600);      // For Serial Monitor debugging
+  bluetooth.begin(9600);   // HC-05 default baud rate
+  delay(1000);
+  
+  // ===== STARTUP MESSAGE =====
+  Serial.println("========================================");
+  Serial.println("⚽ ROBO SOCCER - L298N + HC-05 ⚽");
+  Serial.println("========================================");
+  Serial.println("PIN CONFIGURATION:");
+  Serial.println("ENA = Pin 4  | IN1 = Pin 5 | IN2 = Pin 6");
+  Serial.println("ENB = Pin 7  | IN3 = Pin 8 | IN4 = Pin 9");
+  Serial.println("HC-05 = Pin 10 (RX) | Pin 11 (TX)");
+  Serial.println("========================================");
+  Serial.println("CONTROLS:");
+  Serial.println("F = FORWARD");
+  Serial.println("B = BACKWARD");
+  Serial.println("L = LEFT TURN");
+  Serial.println("R = RIGHT TURN");
+  Serial.println("S = STOP");
+  Serial.println("========================================");
+  Serial.println("Bluetooth Ready! Connect to HC-05");
+  Serial.println("Password: 1234");
+  Serial.println("========================================");
+}
+
+void loop() {
+  // ===== READ BLUETOOTH COMMANDS =====
+  if (bluetooth.available() > 0) {
+    command = bluetooth.read();
+    Serial.print("Command Received: ");
+    Serial.println(command);
+    
+    // Execute movement based on command
+    switch(command) {
+      case 'F': case 'f':
+        moveForward();
+        Serial.println("▶ FORWARD");
+        break;
+        
+      case 'B': case 'b':
+        moveBackward();
+        Serial.println("◀ BACKWARD");
+        break;
+        
+      case 'L': case 'l':
+        turnLeft();
+        Serial.println("↺ LEFT TURN");
+        break;
+        
+      case 'R': case 'r':
+        turnRight();
+        Serial.println("↻ RIGHT TURN");
+        break;
+        
+      case 'S': case 's':
+        stopMotors();
+        Serial.println("⏹ STOP");
+        break;
+        
+      default:
+        // Unknown command - ignore
+        Serial.println("Unknown command");
+        break;
+    }
+  }
+  
+  // Small delay to prevent overwhelming the processor
+  delay(20);
+}
+
+// ===== MOVEMENT FUNCTIONS =====
+
+void moveForward() {
+  // Left Motors - FORWARD
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  
+  // Right Motors - FORWARD
+  analogWrite(ENB, motorSpeed);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
 void moveBackward() {
   // Left Motors - BACKWARD
   analogWrite(ENA, motorSpeed);
